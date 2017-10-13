@@ -1,0 +1,131 @@
+<script src="../node_modules/redux/dist/redux.min.js"></script>
+
+<script>
+  (function() {
+
+    // auth state (just a user, but could hook other things
+    // in here such as roles)
+
+    const auth = (state = { user: null }, action) => {
+      switch (action.type) {
+        case 'USER_AUTHENTICATED':
+          return Object.assign({}, state, action.payload);
+
+        case 'USER_SIGNEDOUT':
+          return Object.assign({}, state, {
+            user: null
+          });
+
+        default:
+          return state;
+      }
+    }
+
+    // ideally, entities would be denormalized and stored
+    // keyed by id with the 'data' for the lists just being
+    // the id references (same principles as firebase RTDB)
+    const patientEntities = (state = {}, action) => {
+      switch (action.type) {
+        case 'PATIENT_FETCH_SUCCESS':
+          return Object.assign({}, state, {
+            [action.response.id]: action.response,
+          })
+
+        case 'PATIENTS_FETCH_SUCCESS':
+          return Object.assign({}, state,
+            action.response.reduce((map, item) => {
+              map[item.id] = item;
+              return map
+            }, {})
+          )
+
+        default:
+          return state;
+      }
+    }
+
+    const entities = Redux.combineReducers({
+      patients: patientEntities,
+    })
+
+    // selected states
+    const selected = (
+      state = {
+        doctor: null,
+        date: null,
+      },
+      action
+    ) => {
+      switch (action.type) {
+        case 'DOCTOR_SELECT':
+          return Object.assign({}, state, {
+            doctor: action.payload.doctor
+          });
+
+        case 'DATE_SELECT':
+          return Object.assign({}, state, {
+            date: action.payload.date
+          });
+
+        default:
+          return state;
+      }
+    }
+
+    // appointments, first the individual items for a date
+    const appointments = (
+      state = {
+        fetching: false,
+        invalidated: true,
+        data: []
+      },
+      action
+    ) => {
+      switch (action.type) {
+        case 'USER_SIGNED_IN':
+        case 'USER_SIGNED_OUT':
+        case 'APPOINTMENTS_INVALIDATE':
+          return Object.assign({}, state, {
+            invalidated: true
+          })
+        case 'APPOINTMENTS_FETCH_REQUEST':
+          return Object.assign({}, state, {
+            fetching: true
+          })
+        case 'APPOINTMENTS_FETCH_SUCCESS':
+          // TODO: ideally the "data" here would just be ids to denormalized patients
+          return Object.assign({}, state, {
+            fetching: false,
+            invalidated: false,
+            data: Object.values(action.response)
+          })
+        default:
+          return state;
+      }
+    }
+
+    // then the object for the days
+    const appointmentsByDate = (state = {}, action) => {
+      switch (action.type) {
+        case 'APPOINTMENTS_FETCH_REQUEST':
+        case 'APPOINTMENTS_FETCH_SUCCESS':
+          return Object.assign({}, state, {
+            [action.date]: appointments(state[action.date], action),
+          })
+
+        default:
+          return state;
+      }
+    }
+
+    // would multiple clinics ever be loaded at once? that could be
+    // set like the dates
+
+    Healthspaces.reducer = Redux.combineReducers({
+      auth,
+      entities,
+      selected,
+      appointmentsByDate,
+    });
+  }());
+</script>

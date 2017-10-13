@@ -1,0 +1,188 @@
+<script src="../node_modules/redux-thunk/dist/redux-thunk.min.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/4.5.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.5.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.5.1/firebase-database.js"></script>
+
+<script>
+  var config = {
+    apiKey: "AIzaSyDujKIptxZOIDKEl4gKTJN7w-gDnjMzVok",
+    authDomain: "healthspaces-7bbad.firebaseapp.com",
+    databaseURL: "https://healthspaces-7bbad.firebaseio.com",
+    projectId: "healthspaces-7bbad",
+    storageBucket: "",
+    messagingSenderId: "173302654451"
+  };
+  firebase.initializeApp(config);
+</script>
+
+<script>
+  (function() {
+
+    // more traditional http REST api middleware
+
+    const apiMiddleware = ({ dispatch, getState }) => {
+      return next => action => {
+
+        let {
+          name,
+          method = 'GET',
+          url,
+          body = null,
+          payload = {}
+        } = action
+
+        if (!url || !name) {
+          return next(action)
+        }
+
+        dispatch(
+          Object.assign({}, payload, {
+            type: name + '_REQUEST'
+          })
+        )
+
+        let token = getState().auth.token;
+        let options = {
+          method: method,
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token,
+          },
+          body: body ? JSON.stringify(body) : null
+        }
+
+        url = Healthspaces.api + url;
+
+        return fetch(url, options)
+          .then(response => response.json())
+          .then(response => dispatch(
+              Object.assign({}, payload, {
+                type: name + '_SUCCESS',
+                response
+              })
+            ), error => {
+              dispatch(
+                Object.assign({}, payload, {
+                  type: name + '_FAILURE',
+                  error
+                })
+              )
+              throw error
+            }
+          )
+      }
+    }
+
+    // auth middleware to handle firebase user status
+
+    const authMiddleware = ({ dispatch, getState }) => {
+
+      const auth = firebase.auth();
+
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          dispatch({
+            type: 'USER_AUTHENTICATED',
+            payload: {
+              user
+            }
+          });
+        } else {
+          dispatch({
+            type: 'USER_SIGNEDOUT',
+          });
+        }
+      });
+
+      function providerFromName(name) {
+        switch (name) {
+          case 'facebook': return new firebase.auth.FacebookAuthProvider();
+          case 'google':   return new firebase.auth.GoogleAuthProvider();
+          case 'twitter':  return new firebase.auth.TwitterAuthProvider();
+        }
+      }
+
+      return next => action => {
+
+        const {
+          type,
+          payload = {}
+        } = action
+
+        switch (type) {
+          case 'USER_SIGNIN_EMAILPASSWORD':
+            auth.signInWithEmailAndPassword(payload.email, payload.password)
+            break;
+
+          case 'USER_SIGNIN_PROVIDER':
+            var provider = providerFromName(payload.provider)
+            auth.signInWithPopup(provider)
+            break;
+
+          case 'USER_SIGNOUT':
+            auth.signOut()
+            break;
+
+          default:
+            return next(action)
+            break;
+        }
+      }
+    }
+
+    // firebase data middleware
+
+    const firebaseMiddleware = ({ dispatch, getState }) => {
+
+      const database = firebase.database();
+
+      return next => action => {
+        let {
+          name,
+          path,
+          payload = {}
+        } = action
+
+        if (!path || !name) {
+          return next(action)
+        }
+
+        dispatch(
+          Object.assign({}, payload, {
+            type: name + '_REQUEST'
+          })
+        )
+
+        return database.ref(path)
+          .once('value', snap => {
+            const response = snap.val();
+            dispatch(
+              Object.assign({}, payload, {
+                type: name + '_SUCCESS',
+                response
+              })
+            )
+          })
+          .catch((error) => {
+            console.error(error);
+            dispatch(
+              Object.assign({}, payload, {
+                type: name + '_FAILURE',
+                error
+              })
+            )
+          });
+      }
+    }
+
+    Healthspaces.middleware = [
+      ReduxThunk.default,
+      apiMiddleware,
+      authMiddleware,
+      firebaseMiddleware,
+    ];
+
+  }());
+</script>

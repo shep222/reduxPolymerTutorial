@@ -1,0 +1,106 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-signin">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+
+      paper-button {
+        background-color: #fff;
+        text-transform: none;
+        margin: 5px;
+      }
+
+      iron-icon {
+        margin: 0 10px;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        max-width: 250px;
+      }
+
+      li paper-button {
+        width: 100%;
+      }
+
+      #google {
+        background-color: #ffffff;
+        color: #757575;
+      }
+
+      #facebook {
+        background-color: #3b5998;
+        color: #fff;
+      }
+
+      #twitter {
+        background-color: #55acee;
+        color: #fff;
+      }
+    </style>
+
+    <h2>Sign-in</h2>
+    <p>Use your email and password credentials to sign in if you have been given them.</p>
+    <form id="form">
+      <paper-input name="email" label="email" required value="{{email}}"></paper-input>
+      <paper-input name="password" label="password" required value="{{password}}" type="password"></paper-input>
+      <paper-button raised on-tap="signin" id="email">Signin</paper-button>
+    </form>
+    <p>Or sign-in with your social networking account:</p>
+    <ul>
+      <li><paper-button on-tap="signin" raised id="google"><iron-icon src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"></iron-icon>Sign in with Google</paper-button></li>
+      <li><paper-button on-tap="signin" raised id="facebook"><iron-icon src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/facebook.svg"></iron-icon>Sign in with Facebook</paper-button></li>
+      <li><paper-button on-tap="signin" raised id="twitter"><iron-icon src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/twitter.svg"></iron-icon>Sign in with Twitter</paper-button></li>
+    </ul>
+  </template>
+
+  <script>
+    class SignIn extends Healthspaces.ReduxMixin(Polymer.GestureEventListeners(Polymer.Element)) {
+      static get is() { return 'my-signin' }
+
+      static get properties() {
+        return {
+          email: {
+            type: String
+          },
+          password: {
+            type: String
+          },
+          user: {
+            type: Object
+          },
+          data: {
+            type: Object
+          }
+        }
+      }
+
+      signin(e) {
+        var name = e.target.id;
+
+        if (name === 'email') {
+            if (this.email && this.password)
+              this.dispatch('signInWithEmailAndPassword', this.email, this.password);
+        } else {
+              this.dispatch('signInWithProvider', name);
+        }
+      }
+    }
+
+    window.customElements.define(SignIn.is, SignIn)
+  </script>
+</dom-module>

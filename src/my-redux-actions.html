@@ -1,0 +1,104 @@
+<script>
+  (function() {
+    // authentication
+
+    function userAuthenticated(user, data) {
+      return {
+        type: 'USER_AUTHENTICATED',
+        payload: {
+          user,
+          data,
+        }
+      }
+    }
+
+    function signInWithEmailAndPassword(email, password) {
+      return {
+        type: 'USER_SIGNIN_EMAILPASSWORD',
+        payload: {
+          email,
+          password,
+        }
+      }
+    }
+
+    function signInWithProvider(provider) {
+      return {
+        type: 'USER_SIGNIN_PROVIDER',
+        payload: {
+          provider,
+        }
+      }
+    }
+
+    function signOut() {
+      return {
+        type: 'USER_SIGNOUT',
+        payload: {}
+      }
+    }
+
+    // selection
+
+    function selectDate(date) {
+      return {
+        type: 'DATE_SELECT',
+        payload: {
+          date
+        }
+      }
+    }
+
+    function selectDoctor(doctor) {
+      return {
+        type: 'DOCTOR_SELECT',
+        payload: {
+          doctor
+        }
+      }
+    }
+
+    // appointments data
+
+    const fetchAppointments = (date) => {
+      return {
+        name:    'APPOINTMENTS_FETCH',
+        path:    `/appointments/${date}`,
+        payload: {
+          date
+        }
+      }
+    }
+
+    const shouldFetchAppointments = (state, date) => {
+      const appointments = state.appointmentsByDate[date];
+      if (!appointments) {
+        return true
+      } else if (appointments.fetching) {
+        return false
+      } else {
+        return appointments.invalidated;
+      }
+    }
+
+    const fetchAppointmentsIfNeeded = (date) => {
+      return (dispatch, getState) => {
+        if (shouldFetchAppointments(getState(), date)) {
+          return dispatch(fetchAppointments(date))
+        } else {
+          return Promise.resolve()
+        }
+      }
+    }
+
+    Healthspaces.actions = {
+      userAuthenticated,
+      signInWithEmailAndPassword,
+      signInWithProvider,
+      signOut,
+      selectDate,
+      selectDoctor,
+      fetchAppointmentsIfNeeded,
+    }
+  }());
+</script>

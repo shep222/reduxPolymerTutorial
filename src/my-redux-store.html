@@ -1,0 +1,67 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer-redux/polymer-redux.html">
+
+<link rel="import" href="my-redux-actions.html">
+<link rel="import" href="my-redux-middleware.html">
+<link rel="import" href="my-redux-reducers.html">
+<link rel="import" href="my-redux-selectors.html">
+
+<script>
+  (function() {
+    const storageKey = 'healthspaces';
+
+    const composeEnhancers = typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+      ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+      : Redux.compose;
+
+    const enhancer = composeEnhancers(
+      Redux.applyMiddleware(...Healthspaces.middleware),
+    );
+
+    const state = loadState();
+    const store = Redux.createStore(Healthspaces.reducer, state, enhancer);
+    store.subscribe(() => {
+      let state = store.getState();
+      saveState({
+        selected: state.selected
+      });
+    });
+
+    const reduxMixin = PolymerRedux(store);
+
+    /* @mixinFunction */
+    const actionsMixin = (superClass) => {
+      return class extends reduxMixin(superClass) {
+        static get actions() {
+          return Healthspaces.actions
+        }
+      }
+    }
+
+    /* @mixinFunction */
+    Healthspaces.ReduxMixin = Polymer.dedupingMixin(actionsMixin);
+
+    // state persistence (probably just to store selections, not data!)
+    function loadState(){
+      try {
+        const serializedState = localStorage.getItem(storageKey);
+        if (serializedState === null) {
+          return undefined;
+        }
+        return JSON.parse(serializedState);
+      } catch(err) {
+        console.error(err);
+        return undefined;
+      }
+    }
+
+    function saveState(state) {
+      try {
+        const serializedState = JSON.stringify(state);
+        localStorage.setItem(storageKey, serializedState);
+      } catch(err) {
+        console.error(err);
+      }
+    }
+  }());
+</script>

@@ -1,0 +1,92 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="my-redux-store.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-signin-status">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        background-color: var(--paper-blue-grey-50);
+        padding: 8px;
+        height: 64px;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+
+      iron-icon {
+        --iron-icon-height: 48px;
+        --iron-icon-width: 48px;
+        width: 48px;
+        height: 48px;
+        color: #666;
+        margin-right: 5px;
+      }
+
+      iron-image {
+        width:48px;
+        height:48px;
+        background-color: #fff;
+        margin-right: 5px;
+      }
+
+      h4, p {
+        margin: 0;
+      }
+      h4 {
+        color: #333;
+        font-size: 18px;
+      }
+      p {
+        color: #666;
+        font-size: 14px;
+      }
+      a {
+        text-decoration: none;
+        @apply --layout-horizontal;
+      }
+    </style>
+
+    <template is="dom-if" if="[[user]]">
+      <a href="/account">
+        <iron-image sizing="cover" preload fade src="[[user.photoURL]]"></iron-image>
+        <div>
+          <h4>[[user.displayName]]</h4>
+          <p>[[user.email]]</p>
+        </div>
+      </a>
+    </template>
+
+    <template is="dom-if" if="[[!user]]">
+      <a href="/signin">
+        <iron-icon icon="my-icons:person"></iron-icon>
+        <div>
+          <h4>Welcome!</h4>
+          <p>Sign in ...</p>
+        </div>
+      </a>
+    </template>
+
+  </template>
+
+  <script>
+    class SignInStatus extends Healthspaces.ReduxMixin(Polymer.GestureEventListeners(Polymer.Element)) {
+      static get is() { return 'my-signin-status'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: Healthspaces.select.user,
+          }
+        }
+      }
+    }
+
+    window.customElements.define(SignInStatus.is, SignInStatus);
+  </script>
+</dom-module>

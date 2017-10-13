@@ -1,0 +1,73 @@
+<script src="../node_modules/reselect/dist/reselect.js"></script>
+
+<script>
+  (function() {
+
+    const createSelector = Reselect.createSelector;
+
+    const getUser = state => state.auth.user;
+
+    const user = createSelector(
+      [getUser],
+      (user) => {
+        return user
+      }
+    );
+
+    const anonymous = createSelector(
+      [getUser],
+      (user) => {
+        return user === null;
+      }
+    )
+
+    const authenticated = createSelector(
+      [getUser],
+      (user) => {
+        return user !== null;
+      }
+    )
+
+    // ideal place to add additional auth type checks
+    // for role membership, permissions etc..
+
+    const getSelectedDate = (state) => state.selected.date;
+    const getSelectedDoctor = (state) => state.selected.doctor;
+
+    const selectedDate = createSelector(
+      [getSelectedDate],
+      (date) => date
+    );
+
+    const selectedDoctor = createSelector(
+      [getSelectedDoctor],
+      (doctor) => doctor
+    );
+
+
+    const getAppointmentsByDate = state => state.appointmentsByDate;
+
+    const appointments = createSelector(
+      [getSelectedDate, getSelectedDoctor, getAppointmentsByDate],
+      (date, doctor, appointments) => appointments[date]
+        ? appointments[date].data.filter(item => !doctor || item.doctor === doctor)
+        : []
+    )
+
+    const appointmentsLoading = createSelector(
+      [getSelectedDate, getAppointmentsByDate],
+      (date, appointments) => appointments[date] ? appointments[date].fetching : false
+    );
+
+    Healthspaces.select = {
+      user,
+      anonymous,
+      authenticated,
+      selectedDate,
+      selectedDoctor,
+      appointments,
+      appointmentsLoading,
+    }
+
+  }());
+</script>
