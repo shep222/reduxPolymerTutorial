@@ -22,6 +22,9 @@ forward and back through state easy.
 The views become more UI binding to pass values to the store via actions in
 response to user interaction and to show data from the store (accessed via the
 selectors which help performance and also insulate the UI from store refactoring).
+This also means that the guts of the app logic isn't tied directly to any particular
+UI library or framework which can help with future upgrades or switching to use
+something else (Vue.js, Polymer 3.x, WebComponents + lit-html etc ...)
 
 NOTE: the structure used is not ideal - you would typically denormalize the data
 in the redux store so that you have collections of entities keyed by id and the
@@ -42,6 +45,16 @@ to hook into an active module / view visibility mechanism so that unecessary fet
 weren't slowing down an app just because some other view had once been loaded. i.e.
 fetch latest data and start subscription when a view is active, stop it when it is
 inactive.
+
+The firebase middleware is intended to demonstrate the concepts without adding too
+many new dependencies but it would be well worth looking at existing Redux + Firebase
+middleware libs:
+
+* https://github.com/Canner/redux-firebase-middleware
+* https://github.com/AndersDJohnson/firedux
+
+This [video](https://www.youtube.com/watch?v=UHJq5NOtNG4) is for React but applies 
+equally to Polymer & Polymerfire as well.
 
 ## Usage
 
