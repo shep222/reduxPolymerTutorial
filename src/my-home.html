@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="shared-styles.html">
+<link rel="import" href="my-redux-store.html">
 
 <dom-module id="my-home">
   <template>
@@ -16,11 +17,21 @@
     </style>
 
     <p>Example app</p>
+    <p>Saved Dr = [[ doctor ]]</p>
   </template>
 
   <script>
-    class MyHome extends Polymer.Element {
+    class MyHome extends Healthspaces.ReduxMixin(Polymer.Element) {
       static get is() { return 'my-home' }
+
+      static get properties() {
+        return {
+          doctor: {
+            type: String,
+            statePath: 'selected.doctor'
+          }
+        }
+      }
     }
 
     window.customElements.define(MyHome.is, MyHome);
