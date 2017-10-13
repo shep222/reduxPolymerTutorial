@@ -24,8 +24,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="my-redux-store.html">
 <link rel="import" href="my-signin-status.html">
 
-<link rel="lazy-import" href="my-signin.html">
 <link rel="lazy-import" href="my-appointments.html">
+<link rel="lazy-import" href="my-home.html">
+<link rel="lazy-import" href="my-signin.html">
 <link rel="lazy-import" href="my-view404.html">
 
 <dom-module id="my-app">
@@ -113,6 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             fallback-selection="view404"
             role="main">
           <my-appointments name="appointments"></my-appointments>
+          <my-home name="home"></my-home>
           <my-signin name="signin"></my-signin>
           <my-view404 name="view404"></my-view404>
         </iron-pages>
@@ -147,8 +149,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _routePageChanged(page) {
         // If no page was found in the route data, page will be an empty string.
-        // Default to 'view1' in that case.
-        this.page = page || 'appointments';
+        // Default to 'home' in that case.
+        this.page = page || 'home';
 
         // Close a non-persistent drawer when the page & route are changed.
         if (!this.$.drawer.persistent) {

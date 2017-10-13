@@ -2,7 +2,8 @@
   "entrypoint": "index.html",
   "shell": "src/my-app.html",
   "fragments": [
-    "src/my-patients.html",
+    "src/my-appointments.html",
+    "src/my-home.html",
     "src/my-signin.html",
     "src/my-view404.html"
   ],
