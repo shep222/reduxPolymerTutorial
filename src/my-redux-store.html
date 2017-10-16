@@ -27,6 +27,25 @@
       });
     });
 
+    (function _tick() {
+      var midnight = new Date(), now = new Date();
+      midnight.setHours(24, 0, 30, 0);  // 30 seconds slack
+      var timeTilMidnight = midnight.getTime() - now.getTime();
+
+      // override to show date actions happening more often
+      // timeTilMidnight = 5000;
+
+      console.log('midnight in', timeTilMidnight / 60000 / 60, 'hours')
+      setTimeout(() => _tick(), timeTilMidnight);
+
+      store.dispatch({
+        type: 'DATE_SELECT',
+        payload: {
+          date: now.toISOString().substr(0, 10)
+        }
+      })
+    })();
+
     const reduxMixin = PolymerRedux(store);
 
     /* @mixinFunction */
