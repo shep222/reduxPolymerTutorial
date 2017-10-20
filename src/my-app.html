@@ -24,7 +24,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="my-redux-store.html">
 <link rel="import" href="my-signin-status.html">
 
-<link rel="lazy-import" href="my-appointments.html">
+<link rel="lazy-import" href="appointments/index.html">
+<link rel="lazy-import" href="patients/index.html">
 <link rel="lazy-import" href="my-home.html">
 <link rel="lazy-import" href="my-signin.html">
 <link rel="lazy-import" href="my-view404.html">
@@ -96,6 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="view1" href="[[rootPath]]">Home</a>
           <a name="view1" href="[[rootPath]]appointments">Appointments</a>
+          <a name="view1" href="[[rootPath]]patients">Patients</a>
         </iron-selector>
       </app-drawer>
 
@@ -115,6 +117,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             fallback-selection="view404"
             role="main">
           <my-appointments name="appointments"></my-appointments>
+          <my-patients name="patients"></my-patients>
           <my-home name="home"></my-home>
           <my-signin name="signin"></my-signin>
           <my-view404 name="view404"></my-view404>
@@ -161,7 +164,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _pageChanged(page) {
         // Load page import on demand. Show 404 page if fails
-        var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
+        let url = (page === 'home' ? 'my-' + page : page + '/index') + '.html'
+        console.log('loading view', url)
+        var resolvedPageUrl = this.resolveUrl(url);
         Polymer.importHref(
             resolvedPageUrl,
             null,
