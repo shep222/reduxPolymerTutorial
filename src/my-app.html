@@ -23,10 +23,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="my-icons.html">
 <link rel="import" href="my-redux-store.html">
 <link rel="import" href="my-signin-status.html">
+<link rel="import" href="my-signin.html">
 
 <link rel="lazy-import" href="my-appointments.html">
 <link rel="lazy-import" href="my-home.html">
-<link rel="lazy-import" href="my-signin.html">
 <link rel="lazy-import" href="my-view404.html">
 
 <dom-module id="my-app">
@@ -37,6 +37,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --app-secondary-color: black;
 
         display: block;
+      }
+
+      [hidden] {
+        display: none !important;
       }
 
       app-drawer-layout:not([narrow]) [drawer-toggle] {
@@ -88,6 +92,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         tail="{{subroute}}">
     </app-route>
 
+    <my-signin hidden$="[[user]]"></my-signin>
+
     <app-drawer-layout fullbleed narrow="{{narrow}}">
       <!-- Drawer content -->
       <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
@@ -124,11 +130,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
-    class MyApp extends Polymer.Element {
+    class MyApp extends Healthspaces.ReduxMixin(Polymer.Element) {
       static get is() { return 'my-app'; }
 
       static get properties() {
         return {
+          user: {
+            type: Object,
+            statePath: Healthspaces.select.user,
+          },
           page: {
             type: String,
             reflectToAttribute: true,

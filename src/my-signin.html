@@ -3,6 +3,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="my-redux-store.html">
 <link rel="import" href="shared-styles.html">
@@ -13,6 +14,9 @@
       :host {
         display: block;
         padding: 10px;
+        z-index: 1;
+        background-color: #fff;
+        @apply --layout-fit;
       }
 
       paper-button {
